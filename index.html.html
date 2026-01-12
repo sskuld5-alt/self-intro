@@ -11,13 +11,31 @@
     
     <style>
         :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            /* 라이트 모드 변수 */
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             --card-bg: rgba(255, 255, 255, 0.95);
             --text-primary: #2d3748;
             --text-secondary: #718096;
             --accent-color: #764ba2;
             --skill-bg: #edf2f7;
             --skill-text: #4a5568;
+            --border-color: #edf2f7;
+            --hover-bg: #f7fafc;
+            --icon-color: #4a5568;
+        }
+
+        /* 다크 모드 변수 */
+        body.dark-mode {
+            --bg-gradient: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+            --card-bg: rgba(45, 55, 72, 0.95);
+            --text-primary: #f7fafc;
+            --text-secondary: #a0aec0;
+            --accent-color: #9f7aea; /* 다크모드에서는 조금 더 밝은 보라색 */
+            --skill-bg: #4a5568;
+            --skill-text: #e2e8f0;
+            --border-color: #4a5568;
+            --hover-bg: #2d3748;
+            --icon-color: #e2e8f0;
         }
 
         * {
@@ -28,11 +46,12 @@
 
         body {
             font-family: 'Noto Sans KR', sans-serif;
-            background: var(--primary-gradient);
+            background: var(--bg-gradient);
             color: var(--text-primary);
             line-height: 1.6;
             min-height: 100vh;
             padding: 40px 20px;
+            transition: background 0.3s ease, color 0.3s ease;
         }
 
         .container {
@@ -41,6 +60,32 @@
             display: flex;
             flex-direction: column;
             gap: 24px;
+            position: relative;
+        }
+
+        /* 다크모드 토글 버튼 */
+        .theme-toggle-btn {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--card-bg);
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s, background 0.3s;
+            z-index: 10;
+        }
+
+        .theme-toggle-btn:hover {
+            transform: scale(1.1);
         }
 
         /* 공통 카드 스타일 */
@@ -50,7 +95,7 @@
             padding: 40px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
             backdrop-filter: blur(10px);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s;
         }
 
         .card:hover {
@@ -61,6 +106,8 @@
         /* 헤더/프로필 섹션 */
         .profile-header {
             text-align: center;
+            position: relative;
+            padding-top: 50px; /* 토글 버튼 공간 확보 */
         }
 
         .profile-img-container {
@@ -73,10 +120,10 @@
         .profile-img {
             width: 100%;
             height: 100%;
-            border-radius: 50%;
+            border-radius: 50%; /* 원형 유지 */
             object-fit: cover;
-            border: 4px solid white;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            border: 4px solid var(--card-bg); /* 배경색과 동일하게 */
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
         }
 
         .profile-name {
@@ -96,6 +143,35 @@
         .profile-tagline {
             color: var(--text-secondary);
             font-size: 1rem;
+            margin-bottom: 24px;
+        }
+
+        /* 소셜 미디어 버튼 (프로필 하단) */
+        .social-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--skill-bg);
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .social-btn:hover {
+            background: var(--accent-color);
+            color: white;
+            transform: translateY(-3px);
         }
 
         /* 섹션 타이틀 */
@@ -107,7 +183,8 @@
             align-items: center;
             gap: 10px;
             padding-bottom: 10px;
-            border-bottom: 2px solid #edf2f7;
+            border-bottom: 2px solid var(--border-color);
+            color: var(--text-primary);
         }
 
         .section-title i {
@@ -116,8 +193,9 @@
 
         /* 자기소개 본문 */
         .about-text {
-            color: #4a5568;
-            white-space: pre-line; /* 줄바꿈 적용 */
+            color: var(--text-secondary);
+            white-space: pre-line;
+            line-height: 1.8;
         }
 
         /* 스킬 태그 */
@@ -128,7 +206,7 @@
         .skill-category-title {
             font-size: 0.95rem;
             color: var(--text-secondary);
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -148,6 +226,13 @@
             font-size: 0.9rem;
             font-weight: 500;
             transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px; /* 아이콘과 텍스트 사이 간격 */
+        }
+
+        .skill-tag i {
+            font-size: 1rem;
         }
 
         .skill-tag:hover {
@@ -166,7 +251,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 16px;
-            border-bottom: 1px solid #edf2f7;
+            border-bottom: 1px solid var(--border-color);
             transition: background 0.2s;
             border-radius: 8px;
         }
@@ -176,12 +261,13 @@
         }
 
         .project-item:hover {
-            background-color: #f8fafc;
+            background-color: var(--hover-bg);
         }
 
         .project-name {
             font-weight: 600;
             font-size: 1.05rem;
+            color: var(--text-primary);
         }
 
         .project-year {
@@ -191,6 +277,11 @@
             background: rgba(118, 75, 162, 0.1);
             padding: 4px 10px;
             border-radius: 12px;
+        }
+        
+        /* 다크모드에서 프로젝트 연도 배경 조정 */
+        body.dark-mode .project-year {
+             background: rgba(159, 122, 234, 0.2);
         }
 
         /* 연락처 */
@@ -206,10 +297,11 @@
             gap: 12px;
             text-decoration: none;
             color: var(--text-primary);
-            background: #f7fafc;
+            background: var(--hover-bg);
             padding: 15px;
             border-radius: 12px;
             transition: all 0.3s;
+            border: 1px solid transparent;
         }
 
         .contact-link:hover {
@@ -217,12 +309,14 @@
             color: white;
             transform: translateY(-3px);
             box-shadow: 0 5px 15px rgba(118, 75, 162, 0.3);
+            border-color: var(--accent-color);
         }
 
         .contact-link i {
             font-size: 1.2rem;
             width: 24px;
             text-align: center;
+            color: inherit;
         }
 
         /* 모바일 반응형 */
@@ -241,6 +335,13 @@
             .profile-name {
                 font-size: 1.6rem;
             }
+            .theme-toggle-btn {
+                top: -10px;
+                right: -10px;
+            }
+            .profile-header {
+                padding-top: 40px;
+            }
         }
     </style>
 </head>
@@ -248,6 +349,11 @@
 
     <div class="container">
         
+        <!-- 다크모드 토글 버튼 -->
+        <button id="theme-toggle" class="theme-toggle-btn" aria-label="다크모드 전환">
+            <i class="fa-solid fa-moon"></i>
+        </button>
+
         <!-- 프로필 섹션 -->
         <header class="card profile-header">
             <div class="profile-img-container">
@@ -257,6 +363,22 @@
             <h1 class="profile-name">김서연 (Kim Seoyeon)</h1>
             <p class="profile-role">Frontend Developer</p>
             <p class="profile-tagline">"사용자 경험을 최우선으로 생각하는 프론트엔드 개발자입니다."</p>
+            
+            <!-- 소셜 미디어 버튼 추가 -->
+            <div class="social-buttons">
+                <a href="https://github.com/seoyeonkim" target="_blank" class="social-btn" title="GitHub">
+                    <i class="fa-brands fa-github"></i>
+                </a>
+                <a href="https://linkedin.com/in/seoyeonkim" target="_blank" class="social-btn" title="LinkedIn">
+                    <i class="fa-brands fa-linkedin"></i>
+                </a>
+                <a href="mailto:seoyeon.kim@example.com" class="social-btn" title="Email">
+                    <i class="fa-solid fa-envelope"></i>
+                </a>
+                <a href="https://seoyeon.dev" target="_blank" class="social-btn" title="Blog">
+                    <i class="fa-solid fa-pen-nib"></i>
+                </a>
+            </div>
         </header>
 
         <!-- 자기소개 섹션 -->
@@ -269,40 +391,40 @@
             </div>
         </section>
 
-        <!-- 기술 스택 섹션 -->
+        <!-- 기술 스택 섹션 (아이콘 추가) -->
         <section class="card">
             <h2 class="section-title"><i class="fa-solid fa-code"></i> Tech Stack</h2>
             
             <div class="skill-category">
                 <div class="skill-category-title">Frontend</div>
                 <div class="skill-container">
-                    <span class="skill-tag">React</span>
-                    <span class="skill-tag">Next.js</span>
-                    <span class="skill-tag">TypeScript</span>
-                    <span class="skill-tag">Vue.js</span>
+                    <span class="skill-tag"><i class="fa-brands fa-react"></i> React</span>
+                    <span class="skill-tag"><i class="fa-brands fa-square-js"></i> Next.js</span>
+                    <span class="skill-tag"><i class="fa-brands fa-js"></i> TypeScript</span>
+                    <span class="skill-tag"><i class="fa-brands fa-vuejs"></i> Vue.js</span>
                 </div>
             </div>
 
             <div class="skill-category">
                 <div class="skill-category-title">Styling</div>
                 <div class="skill-container">
-                    <span class="skill-tag">CSS3</span>
-                    <span class="skill-tag">Sass</span>
-                    <span class="skill-tag">Tailwind CSS</span>
-                    <span class="skill-tag">Styled-components</span>
+                    <span class="skill-tag"><i class="fa-brands fa-css3-alt"></i> CSS3</span>
+                    <span class="skill-tag"><i class="fa-brands fa-sass"></i> Sass</span>
+                    <span class="skill-tag"><i class="fa-solid fa-wind"></i> Tailwind CSS</span>
+                    <span class="skill-tag"><i class="fa-solid fa-paintbrush"></i> Styled-components</span>
                 </div>
             </div>
 
             <div class="skill-category">
                 <div class="skill-category-title">Tools & Others</div>
                 <div class="skill-container">
-                    <span class="skill-tag">Git</span>
-                    <span class="skill-tag">Figma</span>
-                    <span class="skill-tag">Webpack</span>
-                    <span class="skill-tag">Vite</span>
-                    <span class="skill-tag">REST API</span>
-                    <span class="skill-tag">GraphQL</span>
-                    <span class="skill-tag">Firebase</span>
+                    <span class="skill-tag"><i class="fa-brands fa-git-alt"></i> Git</span>
+                    <span class="skill-tag"><i class="fa-brands fa-figma"></i> Figma</span>
+                    <span class="skill-tag"><i class="fa-solid fa-box-open"></i> Webpack</span>
+                    <span class="skill-tag"><i class="fa-solid fa-bolt"></i> Vite</span>
+                    <span class="skill-tag"><i class="fa-solid fa-server"></i> REST API</span>
+                    <span class="skill-tag"><i class="fa-solid fa-circle-nodes"></i> GraphQL</span>
+                    <span class="skill-tag"><i class="fa-solid fa-fire"></i> Firebase</span>
                 </div>
             </div>
         </section>
@@ -350,5 +472,35 @@
         </section>
 
     </div>
+
+    <script>
+        // 다크모드 토글 스크립트
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const body = document.body;
+        const icon = themeToggleBtn.querySelector('i');
+
+        // 로컬 스토리지에서 테마 불러오기
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            body.classList.add('dark-mode');
+            icon.classList.remove('fa-moon');
+            icon.classList.add('fa-sun');
+        }
+
+        themeToggleBtn.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            
+            // 아이콘 및 로컬 스토리지 업데이트
+            if (body.classList.contains('dark-mode')) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+    </script>
 </body>
 </html>
